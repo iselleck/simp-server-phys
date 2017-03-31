@@ -70,7 +70,8 @@ const init = () => {
   socket = io.connect();
 
   socket.on('joined', setUser); //when user joins
-  socket.on('updatedMovement', update); //when players move
+ // socket.on('updatedMovement', update); //when players move
+  socket.on('applyGravity', update);
   socket.on('attackHit', playerDeath); //when a player dies
   socket.on('attackUpdate', receiveAttack); //when an attack is sent
   socket.on('left', removeUser); //when a user leaves

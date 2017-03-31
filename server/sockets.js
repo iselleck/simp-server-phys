@@ -30,6 +30,12 @@ const handleAttack = (userHash) => {
   io.sockets.in('room1').emit('attackHit', userHash);
 };
 
+const grav = (char) => {
+    
+   // console.log(char);
+  io.sockets.in('room1').emit('applyGravity', char);
+};
+
 // function to setup our socket server
 const setupSockets = (ioServer) => {
   // set our io server instance
@@ -146,3 +152,4 @@ const setupSockets = (ioServer) => {
 
 module.exports.setupSockets = setupSockets;
 module.exports.handleAttack = handleAttack;
+module.exports.grav = grav;

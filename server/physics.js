@@ -68,6 +68,23 @@ const checkAttacks = () => {
   }
 };
 
+const applyGravity = () => {
+    const keys = Object.keys(charList);
+    const characters = charList;
+    
+    for (let k = 0; k < keys.length; k++) {
+        let char1 = characters[keys[k]];
+         
+        console.log(char1.destY);
+        
+        const destination = char1.destY;
+        
+        char1.destY = destination + 10;
+          
+          sockets.grav(char1);
+      }
+};
+
 // update our entire character list
 const setCharacterList = (characterList) => {
   charList = characterList;
@@ -87,6 +104,10 @@ const addAttack = (attack) => {
 setInterval(() => {
   checkAttacks();
 }, 20);
+
+setInterval(() => {
+    applyGravity();
+}, 500);
 
 module.exports.setCharacterList = setCharacterList;
 module.exports.setCharacter = setCharacter;

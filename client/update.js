@@ -2,6 +2,8 @@
 const update = (data) => {
   //if we do not have that character (based on their id)
   //then add them
+    
+    console.log(data.hash);
   if(!squares[data.hash]) {
     squares[data.hash] = data;
     return;
