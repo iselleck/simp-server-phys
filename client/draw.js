@@ -87,32 +87,6 @@ const redraw = (time) => {
     //highlight collision box for each character
     ctx.strokeRect(square.x, square.y, spriteSizes.WIDTH, spriteSizes.HEIGHT);
   }
-  
-  //for each attack, draw each to the screen
-  for(let i = 0; i < attacks.length; i++) {
-    const attack = attacks[i];
-    
-    //draw the attack image
-    ctx.drawImage(
-      slashImage,
-      attack.x,
-      attack.y,
-      attack.width,
-      attack.height
-    );
-    
-    //count how many times we have drawn this particular attack
-    attack.frames++;
-    
-    //if the attack has been drawn for 30 frames (half a second)
-    //then stop drawing it and remove it from the attacks to draw
-    if(attack.frames > 30) {
-      //remove from our attacks array
-      attacks.splice(i);
-      //decrease i since splice changes the array length
-      i--;
-    }
-  }
 
   //set our next animation frame
   animationFrame = requestAnimationFrame(redraw);

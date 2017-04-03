@@ -1,3 +1,4 @@
+
 // fast hashing library
 const xxh = require('xxhashjs');
 // Character custom class
@@ -25,17 +26,6 @@ const directions = {
   UP: 7,
 };
 
-// function to notify everyone when a user has been hit
-const handleAttack = (userHash) => {
-  io.sockets.in('room1').emit('attackHit', userHash);
-};
-
-const grav = (char) => {
-    
-   // console.log(char);
-  io.sockets.in('room1').emit('applyGravity', char);
-};
-
 // function to setup our socket server
 const setupSockets = (ioServer) => {
   // set our io server instance
@@ -61,80 +51,29 @@ const setupSockets = (ioServer) => {
 
     // when this user sends the server a movement update
     socket.on('movementUpdate', (data) => {
+       
+        const destY = characters[socket.hash].destY;
+        const jump = characters[socket.hash].jump;
+        
       // update the user's info
       // NOTICE: THIS IS NOT VALIDED AND IS UNSAFE
       characters[socket.hash] = data;
       // update the timestamp of the last change for this character
       characters[socket.hash].lastUpdate = new Date().getTime();
+     characters[socket.hash].destY = physics.appGravity(destY, jump);
+      
+        
       // update our physics simulation with the character's updates
       physics.setCharacter(characters[socket.hash]);
 
+    
+        
       // notify everyone of the user's updated movement
       io.sockets.in('room1').emit('updatedMovement', characters[socket.hash]);
     });
 
-    // when this user sends an attack request
-    socket.on('attack', (data) => {
-      const attack = data;
-
-      // should we handle the attack
-      // I only did this because I did not code
-      // for all player directions.
-      let handleAttackEvent = true;
-
-      // which direction is the user attacking in
-      // will be an integer from our directions structure
-      switch (attack.direction) {
-        // if down, set the height/width of attack to face down
-        // and offset attack downward from user
-        case directions.DOWN: {
-          attack.width = 66;
-          attack.height = 183;
-          attack.y = attack.y + 121;
-          break;
-        }
-        // if left, set the height/width of attack to face left
-        // and offset attack left from user
-        case directions.LEFT: {
-          attack.width = 183;
-          attack.height = 66;
-          attack.x = attack.x - 183;
-          break;
-        }
-        // if right, set the height/width of attack to face right
-        // and offset attack right from user
-        case directions.RIGHT: {
-          attack.width = 183;
-          attack.height = 66;
-          attack.x = attack.x + 61;
-          break;
-        }
-        // if up, set the height/width of attack to face up
-        // and offset attack upward from user
-        case directions.UP: {
-          attack.width = 66;
-          attack.height = 183;
-          attack.y = attack.y - 183;
-          break;
-        }
-        // any other direction we will not handle
-        default: {
-          handleAttackEvent = false;
-        }
-      }
-
-      // if handling the attack
-      if (handleAttackEvent) {
-        // send the graphical update to everyone
-        // This will NOT perform the collision or character death
-        // This just updates graphics so people see the attack
-        io.sockets.in('room1').emit('attackUpdate', attack);
-
-        // add the attack to our physics calculations
-        physics.addAttack(attack);
-      }
-    });
-
+    
+      
     // when the user disconnects
     socket.on('disconnect', () => {
       // let everyone know this user left
@@ -151,5 +90,4 @@ const setupSockets = (ioServer) => {
 };
 
 module.exports.setupSockets = setupSockets;
-module.exports.handleAttack = handleAttack;
-module.exports.grav = grav;
+

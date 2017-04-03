@@ -61,19 +61,6 @@ var redraw = function redraw(time) {
     ctx.strokeRect(square.x, square.y, spriteSizes.WIDTH, spriteSizes.HEIGHT);
   }
 
-  for (var _i = 0; _i < attacks.length; _i++) {
-    var attack = attacks[_i];
-
-    ctx.drawImage(slashImage, attack.x, attack.y, attack.width, attack.height);
-
-    attack.frames++;
-
-    if (attack.frames > 30) {
-      attacks.splice(_i);
-      _i--;
-    }
-  }
-
   animationFrame = requestAnimationFrame(redraw);
 };
 'use strict';
@@ -88,7 +75,6 @@ var hash = void 0;
 var animationFrame = void 0;
 
 var squares = {};
-var attacks = [];
 
 var keyDownHandler = function keyDownHandler(e) {
   var keyPressed = e.which;
@@ -109,6 +95,8 @@ var keyDownHandler = function keyDownHandler(e) {
       // D OR RIGHT
       else if (keyPressed === 68 || keyPressed === 39) {
           square.moveRight = true;
+        } else if (keyPressed === 32) {
+          square.jump = true;
         }
 };
 
@@ -132,7 +120,7 @@ var keyUpHandler = function keyUpHandler(e) {
       else if (keyPressed === 68 || keyPressed === 39) {
           square.moveRight = false;
         } else if (keyPressed === 32) {
-          sendAttack();
+          square.jump = false;
         }
 };
 
@@ -147,8 +135,6 @@ var init = function init() {
 
   socket.on('joined', setUser);
   socket.on('updatedMovement', update);
-  socket.on('attackHit', playerDeath);
-  socket.on('attackUpdate', receiveAttack);
   socket.on('left', removeUser);
 
   document.body.addEventListener('keydown', keyDownHandler);
@@ -159,14 +145,15 @@ window.onload = init;
 'use strict';
 
 var update = function update(data) {
+
   if (!squares[data.hash]) {
     squares[data.hash] = data;
     return;
   }
 
-  if (data.hash === hash) {
-    return;
-  }
+//  if (data.hash === hash) {
+//    return;
+//  }
 
   if (squares[data.hash].lastUpdate >= data.lastUpdate) {
     return;
@@ -182,6 +169,7 @@ var update = function update(data) {
   square.moveRight = data.moveRight;
   square.moveDown = data.moveDown;
   square.moveUp = data.moveUp;
+  square.jump = data.jump;
   square.alpha = 0.05;
 };
 
@@ -195,24 +183,6 @@ var setUser = function setUser(data) {
   hash = data.hash;
   squares[hash] = data;
   requestAnimationFrame(redraw);
-};
-
-var receiveAttack = function receiveAttack(data) {
-  attacks.push(data);
-};
-
-var sendAttack = function sendAttack() {
-  var square = squares[hash];
-
-  var attack = {
-    hash: hash,
-    x: square.x,
-    y: square.y,
-    direction: square.direction,
-    frames: 0
-  };
-
-  socket.emit('attack', attack);
 };
 
 var playerDeath = function playerDeath(data) {
@@ -234,8 +204,8 @@ var updatePosition = function updatePosition() {
   square.prevX = square.x;
   square.prevY = square.y;
 
-  if (square.moveUp && square.destY > 0) {
-    square.destY -= 2;
+  if (square.moveUp && square.destY > 0 ) {
+      square.destY -= 2;;
   }
   if (square.moveDown && square.destY < 400) {
     square.destY += 2;

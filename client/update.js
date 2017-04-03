@@ -51,29 +51,6 @@ const setUser = (data) => {
   requestAnimationFrame(redraw); //start animating
 };
 
-//when receiving an attack (cosmetic, not collision event)
-//add it to our attacks to draw
-const receiveAttack = (data) => {
-  attacks.push(data);
-};
-
-//function to send an attack request to the server
-const sendAttack = () => {
-  const square = squares[hash];
-  
-  //create a new attack in a certain direction for this user
-  const attack = {
-    hash: hash,
-    x: square.x,
-    y: square.y,
-    direction: square.direction,
-    frames: 0,
-  }
-  
-  //send request to server
-  socket.emit('attack', attack);
-};
-
 //when a character is killed
 const playerDeath = (data) => {
   //remove the character
@@ -139,3 +116,4 @@ const updatePosition = () => {
   //send the updated movement request to the server to validate the movement.
   socket.emit('movementUpdate', square);
 };
+
